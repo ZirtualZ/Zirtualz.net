@@ -1,44 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marshal | Files</title>
-    <link rel="stylesheet" href="/static/css/index.css">
-    <!-- bleh im gonna add this to index.css later i think-->
-    <style>
-        .file-grid { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
-        .file-card { border: 1px solid #444; padding: 10px; width: 200px; text-align: center; }
-        .preview { max-width: 100%; height: 120px; object-fit: contain; display: block; margin: 0 auto 10px; }
-        .file-link { font-size: 0.8rem; word-break: break-all; }
-    </style>
-</head>
-<body>
-    <h1>/files</h1>
-    <p class="desc">Random pngs and stuff</p>
+{% extends "base.html" %}
 
-    <div class="file-grid">
-        {% for file in files %}
-        <div class="file-card">
-            <!-- preview for these file types -->
-            {% if file.lower().endswith(('.gif', '.png', '.jpg', '.jpeg', '.webp')) %}
-                <img src="/files/{{ file }}" class="preview" alt="{{ file }}">
-            {% else %}
-                <div class="preview" style="display: flex; align-items: center; justify-content: center; background: #222;">
-                    📄
-                </div>
-            {% endif %}
-            
-            <div class="file-link">
-                <a href="/files/{{ file }}">{{ file }}</a>
-            </div>
-        </div>
-        {% endfor %}
+{% block title %}Files // Marshal-Tech{% endblock %}
+
+{% block content %}
+<h1>Files</h1>
+<p>Upload files directly or request permanent addition to the library.</p>
+
+<hr>
+
+<section id="approved">
+  <h2>Approved Files ({{ files|length }})</h2>
+  {% if files %}
+    <ul>
+      {% for file in files %}
+        <li><a href="{{ file.url }}" target="_blank">{{ file.name }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p><small>No files available yet.</small></p>
+  {% endif %}
+</section>
+
+<hr>
+
+<section id="submit">
+  <h2>Submit a File</h2>
+
+  {% if upload_error %}
+    <div class="message error">{{ upload_error }}</div>
+  {% endif %}
+
+  {% if upload_message %}
+    <div class="message success">{{ upload_message }}</div>
+  {% endif %}
+
+  {% if temp_link %}
+    <div class="message success">
+      <strong>Your temporary link:</strong><br>
+      <a href="{{ temp_link }}" target="_blank" rel="noopener">{{ request.host_url.rstrip('/') }}{{ temp_link }}</a><br>
+      <small>Anyone with this link can download the file. Deletes itself based on size and inactivity — no login required.</small>
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label>Submission Type</label>
+      <ul style="list-style: none; padding: 0; margin-top: 0.5rem;">
+        <li>
+          <label>
+            <input type="radio" name="submission_type" value="permanent" checked>
+            Permanent — reviewed by admin, then added to the public library.
+          </label>
+        </li>
+        <li>
+          <label>
+            <input type="radio" name="submission_type" value="temporary">
+            Temporary — instant UUID link, no login needed, auto-deletes (max 100 MB).
+          </label>
+        </li>
+      </ul>
     </div>
 
-    <hr>
-    <div class="links">
-        <a href="/">Back Home</a> · <a href="/contact">Contact</a>
+    <div class="form-group">
+      <label for="file">Choose file</label>
+      <small style="display: block; margin-bottom: 0.4rem;">Permanent: up to 10 MB. Temporary: up to 100 MB, compressed.</small>
+      <input type="file" id="file" name="file" required>
     </div>
-</body>
-</html>
+
+    <div class="form-group">
+      <label for="description">Description <small>(optional, but helps with approval)</small></label>
+      <textarea id="description" name="description" placeholder="Add any notes about this file..." maxlength="500" autocomplete="off"></textarea>
+    </div>
+
+    <button type="submit" class="primary">Submit File</button>
+
+    {% if pending_count %}
+      <p style="margin-top: 1rem;"><small>{{ pending_count }} permanent upload(s) awaiting admin approval.</small></p>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}

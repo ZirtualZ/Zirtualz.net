@@ -1,84 +1,141 @@
+import io
 import os
-import requests
-from datetime import datetime
-from flask import Flask, render_template, request, Response, send_from_directory
-from werkzeug.utils import secure_filename
+import time
+import gzip
+from flask import Flask, request, render_template, send_file, abort
+from werkzeug.exceptions import RequestEntityTooLarge
 
-# Import the stats_api blueprint from api.stats
-from api.stats import stats_api
+from config import BASE_DIR, DATA_DIR, FILES_DIR, UPLOAD_TEMP_DIR, MAX_UPLOAD_SIZE
+from ip_tracker import IPTracker
+from upload_manager import UploadManager
 
-# --- Configuration ---
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 * 1024  # 20GB
+app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_SIZE
 
-# Path to the folder where you will manually place your files
-FILES_DIRECTORY = os.path.join(app.root_path, 'files')
+tracker = IPTracker(DATA_DIR)
+uploads = UploadManager(DATA_DIR, FILES_DIR, UPLOAD_TEMP_DIR, None)
 
-# Create the 'files' folder automatically if it doesn't exist
-if not os.path.exists(FILES_DIRECTORY):
-    os.makedirs(FILES_DIRECTORY)
+PAGES = [
+    {"name": "Home",  "url": "/"},
+    {"name": "Files", "url": "/files"},
+]
 
-# --- File Serving Route ---
-@app.route('/files/<path:filename>')
-def serve_custom_files(filename):
-    return send_from_directory(FILES_DIRECTORY, filename)
+# Register admin routes (gitignored)
+try:
+    from admin import register_admin_routes
+    register_admin_routes(app, tracker, uploads)
+except ImportError:
+    pass
 
-# --- Page Routes ---
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+@app.context_processor
+def inject_pages():
+    return {"pages": PAGES}
 
-@app.route('/discord-server')
-def discord():
-    return render_template('discord.html')
 
-@app.route('/files')
-def files():
-    # List all files in the configured FILES_DIRECTORY
-    file_list = os.listdir(FILES_DIRECTORY)
-    return render_template('files.html', files=file_list)
-  
+def get_request_ip():
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    return forwarded.split(",")[0].strip() if forwarded else request.remote_addr or "unknown"
 
-@app.route('/labs')
-def labs():
-    return render_template('labs.html')
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+def is_admin_ip(ip):
+    return ip in ("127.0.0.1", "::1") or ip.startswith("192.168.40.")
 
-@app.route('/logs')
-def logs():
-    files = os.listdir(FILES_DIRECTORY)
-    return render_template('logs.html', files=files)
 
-@app.route('/stats')
-def stats():
-    return render_template('stats.html')
+@app.before_request
+def enforce_ip():
+    ip = get_request_ip()
+    if is_admin_ip(ip):
+        return
+    tracker.evaluate_ip(ip, request.path, request.headers.get("User-Agent", ""), request.method)
+    block_status = tracker.check_block(ip)
+    if block_status == "black":
+        return render_template("banned.html", status="permanent"), 403
+    if block_status == "red":
+        state      = tracker.get_state(ip)
+        expires_at = None
+        if state.get("red_until"):
+            expires_at = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(state["red_until"]))
+        return render_template("banned.html", status="temporary", expires_at=expires_at), 403
 
-@app.route('/bot')
-def bot():
-    return render_template('bot.html')
 
-@app.route('/vnc')
-def vnc():
-    return render_template('vnc.html')
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
 
-@app.route('/comments')
-def comments():
-    return render_template('comments.html')
+@app.route("/files", methods=["GET", "POST"])
+def files_list():
+    upload_message = upload_error = temp_link = None
 
-# Register the stats_api blueprint for /api/stats
-app.register_blueprint(stats_api)
+    if request.method == "POST":
+        _, message = uploads.save_upload(
+            request.files.get("file"),
+            request.form.get("description", "").strip(),
+            request.form.get("submission_type", "permanent"),
+            get_request_ip(),
+        )
+        if isinstance(message, dict):
+            upload_message = message["message"]
+            temp_link      = message["temp_link"]
+        elif message.startswith("✓"):
+            upload_message = message
+        else:
+            upload_error = message
 
-if __name__ == '__main__':
-    # Running on port 8081 as per your original code
-    app.run(host='0.0.0.0', port=8081, debug=False)
+    return render_template(
+        "files.html",
+        files=uploads.get_file_list(),
+        upload_message=upload_message,
+        upload_error=upload_error,
+        temp_link=temp_link,
+        pending_count=len(uploads.load_pending()),
+    )
+
+
+@app.route("/temp/<upload_id>")
+def temp_file(upload_id):
+    file_info, status = uploads.get_temp_file(upload_id)
+    if status == "expired":
+        return "This link has expired and the file has been deleted.", 410
+    if status in ("not_found", "missing"):
+        return "File not found.", 404
+
+    if file_info["is_image"]:
+        return send_file(
+            file_info["path"],
+            mimetype="image/jpeg",
+            as_attachment=False,
+            download_name=file_info["filename"],
+        )
+
+    with gzip.open(file_info["path"], "rb") as f:
+        data = f.read()
+    return send_file(io.BytesIO(data), as_attachment=True, download_name=file_info["filename"])
+
+
+@app.route("/file/<filename>")
+def serve_file(filename):
+    if ".." in filename or "/" in filename or "\\" in filename:
+        abort(400)
+    filepath      = os.path.abspath(os.path.join(FILES_DIR, filename))
+    files_dir_abs = os.path.abspath(FILES_DIR)
+    if not filepath.startswith(files_dir_abs):
+        abort(403)
+    if not os.path.isfile(filepath):
+        abort(404)
+    return send_file(filepath)
+
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_large_upload(error):
+    return render_template(
+        "files.html",
+        files=uploads.get_file_list(),
+        upload_error="File exceeds the 10MB upload limit.",
+        pending_count=len(uploads.load_pending()),
+    ), 413
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8081, debug=False)

@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page">
+  <h1>Admin Dashboard</h1>
+  <p>Manage IPs, uploads, and files.</p>
+
+  <section>
+    <h2>Dashboard Stats</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">{{ ip_list|length }}</div>
+        <div class="stat-label">Tracked IPs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ pending_uploads|length }}</div>
+        <div class="stat-label">Pending Uploads</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ temp_uploads|length }}</div>
+        <div class="stat-label">Temp Review Links</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ files|length }}</div>
+        <div class="stat-label">Files Uploaded</div>
+      </div>
+    </div>
+  </section>
+
+  {% if result %}
+    <section>
+      {% if result.error %}
+        <div class="message error">
+          <strong>Error:</strong> {{ result.error }}
+        </div>
+      {% else %}
+        <div class="message success">
+          <strong>Success:</strong> {{ result.message }}
+          {% if result.ip %}
+            <ul style="margin-top: 0.5rem;">
+              <li><strong>IP:</strong> {{ result.ip }}</li>
+              <li><strong>Level:</strong> {{ result.level }}</li>
+              <li><strong>Score:</strong> {{ result.score }}</li>
+              <li><strong>Hits:</strong> {{ result.hits }}</li>
+            </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  <section>
+    <h2>Manage IP Address</h2>
+    <form method="post">
+      <input type="hidden" name="secret" value="{{ secret }}">
+      <input type="hidden" name="form_type" value="ip_update">
+      
+      <div class="form-group">
+        <label for="ip">IP from list</label>
+        <select id="ip" name="ip">
+          <option value="">-- Select or enter custom IP --</option>
+          {% for ip, state in ip_list %}
+            <option value="{{ ip }}">{{ ip }} ({{ state.level }}, {{ state.hits }} hits)</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="ip_custom">Custom IP</label>
+        <input id="ip_custom" name="ip_custom" type="text" placeholder="192.168.1.1">
+      </div>
+
+      <div class="form-group">
+        <label for="level">Set Level</label>
+        <select id="level" name="level">
+          <option value="green">green</option>
+          <option value="yellow">yellow</option>
+          <option value="red">red</option>
+          <option value="black">black</option>
+        </select>
+      </div>
+
+      <button type="submit" class="primary">Update IP</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Tracked IPs ({{ ip_list|length }})</h2>
+    {% if ip_list %}
+      <table>
+        <thead>
+          <tr>
+            <th>IP</th>
+            <th>Level</th>
+            <th>Score</th>
+            <th>Hits</th>
+            <th>Suspicious</th>
+            <th>Blacklisted</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ip, state in ip_list %}
+            <tr>
+              <td><code>{{ ip }}</code></td>
+              <td><span class="badge {{ state.level }}">{{ state.level }}</span></td>
+              <td>{{ state.score }}</td>
+              <td>{{ state.hits }}</td>
+              <td>{{ state.suspicious_hits }}</td>
+              <td>{% if state.blacklisted %}Yes{% else %}No{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty">No IPs tracked yet</div>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Pending Upload Requests ({{ pending_uploads|length }})</h2>
+    {% if pending_uploads %}
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Size</th>
+            <th>From IP</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for upload_id, upload in pending_uploads.items() %}
+            <tr>
+              <td>{{ upload.original_filename }}</td>
+              <td>{{ (upload.size / 1024) | round(1) }} KB</td>
+              <td><code>{{ upload.submitted_ip }}</code></td>
+              <td>{{ upload.submitted_at_readable }}</td>
+              <td>
+                <form method="post" style="display: inline;">
+                  <input type="hidden" name="secret" value="{{ secret }}">
+                  <input type="hidden" name="form_type" value="upload_action">
+                  <input type="hidden" name="upload_id" value="{{ upload_id }}">
+                  <button type="submit" name="action" value="approve" class="success">Approve</button>
+                </form>
+                <form method="post" style="display: inline;">
+                  <input type="hidden" name="secret" value="{{ secret }}">
+                  <input type="hidden" name="form_type" value="upload_action">
+                  <input type="hidden" name="upload_id" value="{{ upload_id }}">
+                  <button type="submit" name="action" value="reject" class="danger">Reject</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty">No pending uploads</div>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Temporary Review Links ({{ temp_uploads|length }})</h2>
+    {% if temp_uploads %}
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Size</th>
+            <th>From IP</th>
+            <th>Submitted</th>
+            <th>Link</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for upload_id, upload in temp_uploads.items() %}
+            <tr>
+              <td>{{ upload.original_filename }}</td>
+              <td>{{ (upload.size / 1024) | round(1) }} KB</td>
+              <td><code>{{ upload.submitted_ip }}</code></td>
+              <td>{{ upload.submitted_at_readable }}</td>
+              <td><a href="/temp-file/{{ upload_id }}" target="_blank">View/Download</a></td>
+              <td>
+                <form method="post" style="display: inline;">
+                  <input type="hidden" name="secret" value="{{ secret }}">
+                  <input type="hidden" name="form_type" value="temp_upload_action">
+                  <input type="hidden" name="upload_id" value="{{ upload_id }}">
+                  <button type="submit" name="action" value="delete" class="danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty">No temporary links</div>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Uploaded Files ({{ files|length }})</h2>
+    {% if files %}
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for file in files %}
+            <tr>
+              <td><a href="{{ file.url }}" target="_blank">{{ file.name }}</a></td>
+              <td>
+                <form method="post" style="display: inline;">
+                  <input type="hidden" name="secret" value="{{ secret }}">
+                  <input type="hidden" name="form_type" value="file_action">
+                  <input type="hidden" name="filename" value="{{ file.name }}">
+                  <button type="submit" name="action" value="delete" class="danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty">No files</div>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Developer Tools</h2>
+    <p style="color: #999; margin-bottom: 1rem;">Caution: These clear data permanently.</p>
+    <div class="button-group">
+      <form method="post" style="margin: 0; flex: 1;">
+        <input type="hidden" name="secret" value="{{ secret }}">
+        <input type="hidden" name="form_type" value="dev_action">
+        <input type="hidden" name="dev_action" value="clear_ip_state">
+        <button type="submit" style="width: 100%;">Clear IP State</button>
+      </form>
+      <form method="post" style="margin: 0; flex: 1;">
+        <input type="hidden" name="secret" value="{{ secret }}">
+        <input type="hidden" name="form_type" value="dev_action">
+        <input type="hidden" name="dev_action" value="clear_pending_uploads">
+        <button type="submit" style="width: 100%;">Clear Pending</button>
+      </form>
+      <form method="post" style="margin: 0; flex: 1;">
+        <input type="hidden" name="secret" value="{{ secret }}">
+        <input type="hidden" name="form_type" value="dev_action">
+        <input type="hidden" name="dev_action" value="clear_temp_uploads">
+        <button type="submit" style="width: 100%;">Clear Temp Links</button>
+      </form>
+      <form method="post" style="margin: 0; flex: 1;">
+        <input type="hidden" name="secret" value="{{ secret }}">
+        <input type="hidden" name="form_type" value="dev_action">
+        <input type="hidden" name="dev_action" value="clear_blacklist">
+        <button type="submit" style="width: 100%;">Clear Blacklist</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

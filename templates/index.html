@@ -1,25 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marshal</title>
-    <!-- Real css but very simple, i like this better than the old ai index.css lmao -->
- <link rel="stylesheet" href="/static/css/index.css">
-</head>
-<body>
-    <h1>Marshal</h1>
-    <p class="desc">Building cool stuff & sharing ideas</p>
-    <ul>
-        <li><a href="/labs">/labs</a> — apis & tools you probably won't use.</li>
-        <li><a href="/stats">/stats</a> — live Server statistics</li>
-        <li><a href="/about">/about</a> — about me</li>
-        <li><a href="/comments">/comments</a> — dev log</li>
-    </ul>
-    <hr>
-    <div class="links">
-        <a href="/discord-server">Discord</a> · 
-        <a href="/contact">Contact</a>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Marshal</h1>
+<p>Simple personal site for tech notes, system info, and contact links.</p>
+
+<nav>
+  <a href="#about">About</a>
+  <a href="#system">System</a>
+  <a href="#notes">Notes</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<section id="about">
+  <h2>About</h2>
+  <p>I am 15 and learning hardware, Linux, backend Python, self-hosting, and basic software development.</p>
+  <p>I enjoy experimenting with older laptops, game mods, servers, and small projects that help me learn.</p>
+  <ul>
+    <li>Gaming and mods</li>
+    <li>Linux and custom operating systems</li>
+    <li>Backend Python and simple services</li>
+    <li>Self-hosted systems and servers</li>
+  </ul>
+</section>
+
+<section id="system">
+  <h2>System</h2>
+  <p>My personal setup and main server details.</p>
+  <h3>Personal system</h3>
+  <ul>
+    <li>CPU — Intel Core i5-10600KF</li>
+    <li>GPU — Radeon RX 5700 8GB</li>
+    <li>RAM — 24GB DDR4</li>
+    <li>OS — Arch Linux with ZEN kernel</li>
+    <li>Storage — 128GB NVMe, 3TB HDD</li>
+  </ul>
+  <h3>Main server</h3>
+  <ul>
+    <li>CPU — Intel Celeron G3900</li>
+    <li>RAM — 4GB DDR4</li>
+    <li>Storage — 4 × 1TB 7200RPM</li>
+    <li>OS — Ubuntu Server</li>
+    <li>Hosting a NAS, website, DNS, VPN, and more</li>
+  </ul>
+</section>
+
+<section id="notes">
+  <h2>Notes</h2>
+  <ul>
+    <li>This site is very simple, hand-written, and self-hosted.</li>
+    <li>Older pages like stats, questions, and dashboards are removed.</li>
+    <li>The previous questions page was abused, and kept breaking so they're gone.</li>
+    <li>Future labs and experiments will prob be added when they are ready.</li>
+  </ul>
+  <p><small>Site updates, experiments, and thoughts are kept brief here to stay easy to read.</small></p>
+</section>
+<section id="contact">
+  <h2>My contacts</h2>
+  <ul>
+    <li><a href="https://github.com/ZirtualZ">GitHub</a></li>
+    <li><a href="https://discord.gg/nTdZ9jGjPF">Discord server</a></li>
+    <li><a href="mailto:zane.m.goodman@gmail.com">Email</a></li>
+    <li><a href="https://steamcommunity.com/">Steam</a></li>
+  </ul>
+</section>
+
+
+{% endblock %}

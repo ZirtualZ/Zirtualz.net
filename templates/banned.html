@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{% if status == "permanent" %}Oops, You're Banned{% else %}Temporary Block{% endif %}</h1>
+<p>
+  {% if status == "permanent" %}
+    Your IP got a little too curious on my website. This is a permanent ban.
+  {% else %}
+    Your IP is temporarily blocked for suspicious activity.
+  {% endif %}
+</p>
+
+<hr>
+
+<section id="reason">
+  <h2>What did I do?</h2>
+  <ul>
+    <li>You ran some bot or scanner on the site</li>
+    <li>You were spamming endpoints that don't exist (like /.env, /admin, etc.)</li>
+    <li>You sent way too many requests in a short time</li>
+    <li>Some combination of the above</li>
+  </ul>
+</section>
+
+<hr>
+
+{% if status == "temporary" %}
+<section id="expires">
+  <h2>When will I be allowed back?</h2>
+  <p>This block lasts until <strong>{{ expires_at or "a little while" }}</strong>. After that you should be able to access the site again.</p>
+</section>
+
+<hr>
+{% endif %}
+
+<section id="fix">
+  <h2>How do I fix this?</h2>
+  <ul>
+    <li><strong>Get a VPN</strong> — Its the easiest way to get unbanned lol.</li>
+    <li><strong>Contact me</strong> — if you weren't being malicious, reach out and we can talk about it.</li>
+  </ul>
+  <p>Contact:</p>
+  <ul>
+    <li><a href="mailto:zane.m.goodman@gmail.com">Email</a></li>
+    <li><a href="https://discord.gg/nTdZ9jGjPF">Discord</a></li>
+  </ul>
+</section>
+{% endblock %}

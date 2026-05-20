@@ -1,1 +1,8 @@
+config.py
+admin.py
+data/
+*.pyc
+__pycache__/
+.env
 gunicorn.ctl
+.website/

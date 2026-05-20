@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Marshal{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="stylesheet" href="/static/css/index.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="page">
+    {% block content %}{% endblock %}
+    <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem;">
+      <strong>All Pages:</strong>
+      {% for page in pages %}
+        <a href="{{ page.url }}" style="margin-right: 1rem;">{{ page.name }}</a>
+      {% endfor %}
+    </footer>
+  </div>
+</body>
+</html>
