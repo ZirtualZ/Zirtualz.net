@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Marshal — Minecraft{% endblock %}
+
+{% block content %}
+  <h1>MineCrest</h1>
+  <p><strong>Chill Public SMP</strong> • Land Claims &amp; Simple Voice Chat</p>
+  <p>Looking for a relaxed survival server without a bunch of pay-to-win nonsense or overcomplicated features? Welcome to MineCrest.</p>
+  <p>MineCrest is a public, community-focused SMP built around long-term survival and hanging out with other players. Whether you want to build a cozy cabin, start a town with friends, open a shop, or just explore, you're welcome here.</p>
+
+  <h2>Features</h2>
+  <ul>
+    <li>Custom land claiming</li>
+    <li>Simple Voice Chat</li>
+    <li>Player economy and auction house</li>
+    <li>Random teleport</li>
+    <li>Builder and technical-player friendly</li>
+    <li>Large survival world with plenty of room to settle</li>
+    <li>Friendly, laid-back community</li>
+    <li>No pressure — play at your own pace</li>
+  </ul>
+
+  <h2>Server Information</h2>
+  <ul>
+    <li><strong>Version:</strong> 1.21.10 — 26.x</li>
+    <li><strong>Java IP:</strong> mc.marshal-tech.xyz</li>
+    <li><strong>Discord:</strong> <a href="https://discord.gg/HyRZGh987H">https://discord.gg/HyRZGh987H</a></li>
+  </ul>
+
+  <p id="player-count"><strong>Players online:</strong> loading...</p>
+
+  <h2>Server Hardware</h2>
+  <ul>
+    <li><strong>CPU:</strong> Intel i7-6700K</li>
+    <li><strong>RAM:</strong> 16GB DDR4</li>
+    <li><strong>Storage:</strong> 1.3TB HDD</li>
+    <li><strong>OS:</strong> Ubuntu Server</li>
+    <li><strong>Runs:</strong> Pi-hole, Tailscale, Flask, Minecraft Server</li>
+    <li><strong>Role:</strong> Self-hosted backend for the server and website services</li>
+  </ul>
+
+  <script>
+    const playerCountEl = document.getElementById('player-count');
+    const serverHost = 'mc.marshal-tech.xyz';
+
+    async function updatePlayerCount() {
+      try {
+        const response = await fetch(`https://api.mcsrvstat.us/2/${serverHost}`);
+        const data = await response.json();
+
+        if (data && data.online && typeof data.players?.online === 'number') {
+          playerCountEl.innerHTML = `<strong>Players online:</strong> ${data.players.online}/${data.players.max}`;
+        } else if (data && data.hostname) {
+          playerCountEl.innerHTML = `<strong>Players online:</strong> status unavailable`;
+        } else {
+          playerCountEl.textContent = 'Server status unavailable';
+        }
+      } catch (error) {
+        playerCountEl.textContent = 'Server status unavailable';
+      }
+    }
+
+    updatePlayerCount();
+    setInterval(updatePlayerCount, 60000);
+  </script>
+{% endblock %}

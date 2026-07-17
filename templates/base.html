@@ -9,12 +9,16 @@
   {% block head %}{% endblock %}
 </head>
 <body>
+  <nav class="navbar">
+    {% for page in pages %}
+      <a href="{{ page.url }}">{{ page.name }}</a>
+    {% endfor %}
+  </nav>
   <div class="page">
     {% block content %}{% endblock %}
-    <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem;">
-      <strong>All Pages:</strong>
+    <footer>
       {% for page in pages %}
-        <a href="{{ page.url }}" style="margin-right: 1rem;">{{ page.name }}</a>
+        <a href="{{ page.url }}">{{ page.name }}</a>
       {% endfor %}
     </footer>
   </div>

@@ -1,68 +1,115 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<h1>Marshal</h1>
-<p>Simple personal site for tech notes, system info, and contact links.</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marshal</title>
+  <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="icon" href="/static/favicon.ico">
+</head>
+<!-- You can go to /data to view everything my website ever uses :P-->
+<body>
+  <nav> <a href="/">home</a> | <a href="/vault">vault</a> | <a href="/contact">contact</a> | <a href="/irc">irc</a> </nav>
+  <p><b>marshal's page</b> — he/she/they</p>
+  <p><small>linux, servers, python, self-hosting, retro stuff</small></p>
+  <p><a href="/minecraft">Join my Minecraft server!</a></p>
+  <p><a href="/irc">Join my IRC server! (very WIP)</a></p>
+  <hr>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr valign="top">
+      <td class="main-col">
+        <p><b>about</b></p>
+        <p>hello!!! i'm zane. i spend a lot of my time online, messing with things and figuring stuff out as i go.
+           i like exploring, learning, and making things feel like mine, even if i don't always know what i'm doing at first
+            - a lot of what i do comes from curiosity more than anything else.</p>
+        <p>i like having my own space where i can just be myself without worrying about fitting into groups.
+           i'm genderfluid and pansexual, sitting somewhere in between everything. still figuring shit out lmao, and i'm fine with that.</p>
+        <p class="section-gap"><b>notes</b></p>
+        <p> site is hand written and self hosted :P<br> old netlify versions are in <a
+            href="/vault">vault</a><br> questions page got abused so its gone<br> labs will show up here eventually </p>
+  <img id="rand-img" src="" alt="" style="width: 550px; height: 550px; object-fit: contain; display: block;">
+        <script>
+          fetch('/data/images/random')
+            .then(r => r.json())
+            .then(d => { if (d.url) document.getElementById('rand-img').src = d.url; });
+        </script>
+      </td>
 
-<nav>
-  <a href="#about">About</a>
-  <a href="#system">System</a>
-  <a href="#notes">Notes</a>
-  <a href="#contact">Contact</a>
-</nav>
-
-<section id="about">
-  <h2>About</h2>
-  <p>I am 15 and learning hardware, Linux, backend Python, self-hosting, and basic software development.</p>
-  <p>I enjoy experimenting with older laptops, game mods, servers, and small projects that help me learn.</p>
-  <ul>
-    <li>Gaming and mods</li>
-    <li>Linux and custom operating systems</li>
-    <li>Backend Python and simple services</li>
-    <li>Self-hosted systems and servers</li>
-  </ul>
-</section>
-
-<section id="system">
-  <h2>System</h2>
-  <p>My personal setup and main server details.</p>
-  <h3>Personal system</h3>
-  <ul>
-    <li>CPU — Intel Core i5-10600KF</li>
-    <li>GPU — Radeon RX 5700 8GB</li>
-    <li>RAM — 24GB DDR4</li>
-    <li>OS — Arch Linux with ZEN kernel</li>
-    <li>Storage — 128GB NVMe, 3TB HDD</li>
-  </ul>
-  <h3>Main server</h3>
-  <ul>
-    <li>CPU — Intel Celeron G3900</li>
-    <li>RAM — 4GB DDR4</li>
-    <li>Storage — 4 × 1TB 7200RPM</li>
-    <li>OS — Ubuntu Server</li>
-    <li>Hosting a NAS, website, DNS, VPN, and more</li>
-  </ul>
-</section>
-
-<section id="notes">
-  <h2>Notes</h2>
-  <ul>
-    <li>This site is very simple, hand-written, and self-hosted.</li>
-    <li>Older pages like stats, questions, and dashboards are removed.</li>
-    <li>The previous questions page was abused, and kept breaking so they're gone.</li>
-    <li>Future labs and experiments will prob be added when they are ready.</li>
-  </ul>
-  <p><small>Site updates, experiments, and thoughts are kept brief here to stay easy to read.</small></p>
-</section>
-<section id="contact">
-  <h2>My contacts</h2>
-  <ul>
-    <li><a href="https://github.com/ZirtualZ">GitHub</a></li>
-    <li><a href="https://discord.gg/nTdZ9jGjPF">Discord server</a></li>
-    <li><a href="mailto:zane.m.goodman@gmail.com">Email</a></li>
-    <li><a href="https://steamcommunity.com/">Steam</a></li>
-  </ul>
-</section>
+<!-- the side column -->
+      <td class="side-col">
+        <p><small>main rig</small></p>
+        <div class="srow"><span>cpu</span> Intel i5-10600KF @ 5.1Ghz</div>
+        <div class="srow"><span>gpu</span> RX 5700 8GB</div>
+        <div class="srow"><span>ram</span> 16GB DDR4</div>
+        <div class="srow"><span>os</span> Arch / ZEN</div>
+        <div class="srow"><span>hdd</span> 3.5TB</div>
+        <p class="section-gap"><small>server</small></p>
+        <div class="srow"><span>cpu</span> Intel i7-6700K</div>
+        <div class="srow"><span>ram</span> 16GB DDR4</div>
+        <div class="srow"><span>hdd</span> 1.3TB</div>
+        <div class="srow"><span>os</span> Ubuntu Server</div>
+        <div class="srow"><span>runs</span> pihole/tailscale/flask/Minecraft Server</div>
+        <p class="section-gap"><small>laptop</small></p>
+        <div class="srow"><span>model</span> Acer TravelMate</div>
+        <div class="srow"><span>cpu</span> i5-8250U</div>
+        <div class="srow"><span>ram</span> 12GB DDR4</div>
+        <div class="srow"><span>storage</span> 128GB M.2</div>
+        <div class="srow"><span>os</span> Windows 10 LTSC</div>
+        <p class="section-gap"><small>links</small></p>
+        <p>
+          <a href="https://github.com/ZirtualZ">github</a><br>
+          <a href="https://discord.gg/nTdZ9jGjPF">discord</a><br>
+          <a href="https://steamcommunity.com/id/ZirtualZ/">steam</a><br>
+          <a href="/data">data for the Website</a><br>
+        </p>
 
 
-{% endblock %}
+        <p class="section-gap"><small>music</small></p>
+        <audio id="player" autoplay muted></audio>
+        <p><small id="song-name">loading...</small></p>
+
+        <small>
+          <a href="#" onclick="player.muted=false; nextSong(); return false;">[ play ]</a>
+          <a href="#" onclick="player.paused ? player.play() : player.pause(); return false;">[ pause ]</a>
+          <a href="#" onclick="nextSong(); return false;">[ skip ]</a>
+        </small>
+      </td>
+    </tr>
+
+
+  </table>
+  <small><a href="/">home</a> | <a href="/vault">vault</a></small>
+
+  <script>
+    var player = document.getElementById("player");
+    var label = document.getElementById("song-name");
+
+    player.volume = 0.1;
+    async function nextSong() {
+      try {
+        const res = await fetch("/music/random");
+        const data = await res.json();
+        player.src = data.url;
+
+        await player.play().catch(() => { });
+
+        label.textContent = data.file
+          .replace(".mp3", "")
+          .replaceAll("_", " ");
+      } catch (e) {
+        label.textContent = "no music found";
+      }
+    }
+    player.onended = nextSong;
+    nextSong();
+    document.addEventListener("click", () => {
+      if (player.muted) {
+        player.muted = false;
+        player.play();
+      }
+    }, { once: true });
+  </script>
+
+</body>
+</html>

@@ -99,9 +99,8 @@ def _compress_generic(src_path: str) -> bytes:
 
 
 class UploadManager:
-    def __init__(self, data_dir, files_dir, upload_temp_dir, admin_secret):
+    def __init__(self, data_dir, upload_temp_dir, admin_secret):
         self.data_dir        = data_dir
-        self.files_dir       = files_dir
         self.upload_temp_dir = upload_temp_dir
         self.admin_secret    = admin_secret
         self.pending_file    = os.path.join(data_dir, "pending_uploads.json")
@@ -109,7 +108,7 @@ class UploadManager:
         self.ensure_dirs()
 
     def ensure_dirs(self):
-        for d in (self.data_dir, self.files_dir, self.upload_temp_dir):
+        for d in (self.data_dir, self.upload_temp_dir):
             os.makedirs(d, exist_ok=True)
 
     # --- persistence ---
@@ -137,7 +136,7 @@ class UploadManager:
         safe = secure_filename(filename) or "upload"
         base, ext = os.path.splitext(safe)
         target, i = safe, 1
-        while os.path.exists(os.path.join(self.files_dir, target)):
+        while os.path.exists(os.path.join(self.data_dir, target)):
             target = f"{base}-{i}{ext}"
             i += 1
         return target
@@ -263,8 +262,8 @@ class UploadManager:
         self.ensure_dirs()
         return [
             {"name": f, "url": f"/file/{f}"}
-            for f in sorted(os.listdir(self.files_dir))
-            if os.path.isfile(os.path.join(self.files_dir, f))
+            for f in sorted(os.listdir(self.data_dir))
+            if os.path.isfile(os.path.join(self.data_dir, f))
         ]
 
     # --- admin actions ---
@@ -277,7 +276,7 @@ class UploadManager:
         temp_path = os.path.join(self.upload_temp_dir, data["pending_filename"])
         if not os.path.isfile(temp_path):
             return False, "Pending file is missing."
-        os.replace(temp_path, os.path.join(self.files_dir, self.make_unique_filename(data["original_filename"])))
+        os.replace(temp_path, os.path.join(self.data_dir, self.make_unique_filename(data["original_filename"])))
         self.save_pending(pending)
         return True, f"Approved: {data['original_filename']}"
 
@@ -305,8 +304,8 @@ class UploadManager:
 
     def delete_file(self, filename):
         safe = secure_filename(filename)
-        path = os.path.abspath(os.path.join(self.files_dir, safe))
-        if not path.startswith(os.path.abspath(self.files_dir)):
+        path = os.path.abspath(os.path.join(self.data_dir, safe))
+        if not path.startswith(os.path.abspath(self.data_dir)):
             return False, "Invalid file name."
         if not os.path.isfile(path):
             return False, "File not found."

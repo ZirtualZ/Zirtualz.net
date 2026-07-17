@@ -3,15 +3,11 @@
 {% block content %}
 <div class="page">
   <h1>Admin Dashboard</h1>
-  <p>Manage IPs, uploads, and files.</p>
+  <p>Manage uploads and files.</p>
 
   <section>
     <h2>Dashboard Stats</h2>
     <div class="stats">
-      <div class="stat">
-        <div class="stat-value">{{ ip_list|length }}</div>
-        <div class="stat-label">Tracked IPs</div>
-      </div>
       <div class="stat">
         <div class="stat-value">{{ pending_uploads|length }}</div>
         <div class="stat-label">Pending Uploads</div>
@@ -36,85 +32,10 @@
       {% else %}
         <div class="message success">
           <strong>Success:</strong> {{ result.message }}
-          {% if result.ip %}
-            <ul style="margin-top: 0.5rem;">
-              <li><strong>IP:</strong> {{ result.ip }}</li>
-              <li><strong>Level:</strong> {{ result.level }}</li>
-              <li><strong>Score:</strong> {{ result.score }}</li>
-              <li><strong>Hits:</strong> {{ result.hits }}</li>
-            </ul>
-          {% endif %}
         </div>
       {% endif %}
     </section>
   {% endif %}
-
-  <section>
-    <h2>Manage IP Address</h2>
-    <form method="post">
-      <input type="hidden" name="secret" value="{{ secret }}">
-      <input type="hidden" name="form_type" value="ip_update">
-      
-      <div class="form-group">
-        <label for="ip">IP from list</label>
-        <select id="ip" name="ip">
-          <option value="">-- Select or enter custom IP --</option>
-          {% for ip, state in ip_list %}
-            <option value="{{ ip }}">{{ ip }} ({{ state.level }}, {{ state.hits }} hits)</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="ip_custom">Custom IP</label>
-        <input id="ip_custom" name="ip_custom" type="text" placeholder="192.168.1.1">
-      </div>
-
-      <div class="form-group">
-        <label for="level">Set Level</label>
-        <select id="level" name="level">
-          <option value="green">green</option>
-          <option value="yellow">yellow</option>
-          <option value="red">red</option>
-          <option value="black">black</option>
-        </select>
-      </div>
-
-      <button type="submit" class="primary">Update IP</button>
-    </form>
-  </section>
-
-  <section>
-    <h2>Tracked IPs ({{ ip_list|length }})</h2>
-    {% if ip_list %}
-      <table>
-        <thead>
-          <tr>
-            <th>IP</th>
-            <th>Level</th>
-            <th>Score</th>
-            <th>Hits</th>
-            <th>Suspicious</th>
-            <th>Blacklisted</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for ip, state in ip_list %}
-            <tr>
-              <td><code>{{ ip }}</code></td>
-              <td><span class="badge {{ state.level }}">{{ state.level }}</span></td>
-              <td>{{ state.score }}</td>
-              <td>{{ state.hits }}</td>
-              <td>{{ state.suspicious_hits }}</td>
-              <td>{% if state.blacklisted %}Yes{% else %}No{% endif %}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <div class="empty">No IPs tracked yet</div>
-    {% endif %}
-  </section>
 
   <section>
     <h2>Pending Upload Requests ({{ pending_uploads|length }})</h2>
@@ -236,12 +157,6 @@
       <form method="post" style="margin: 0; flex: 1;">
         <input type="hidden" name="secret" value="{{ secret }}">
         <input type="hidden" name="form_type" value="dev_action">
-        <input type="hidden" name="dev_action" value="clear_ip_state">
-        <button type="submit" style="width: 100%;">Clear IP State</button>
-      </form>
-      <form method="post" style="margin: 0; flex: 1;">
-        <input type="hidden" name="secret" value="{{ secret }}">
-        <input type="hidden" name="form_type" value="dev_action">
         <input type="hidden" name="dev_action" value="clear_pending_uploads">
         <button type="submit" style="width: 100%;">Clear Pending</button>
       </form>
@@ -250,12 +165,6 @@
         <input type="hidden" name="form_type" value="dev_action">
         <input type="hidden" name="dev_action" value="clear_temp_uploads">
         <button type="submit" style="width: 100%;">Clear Temp Links</button>
-      </form>
-      <form method="post" style="margin: 0; flex: 1;">
-        <input type="hidden" name="secret" value="{{ secret }}">
-        <input type="hidden" name="form_type" value="dev_action">
-        <input type="hidden" name="dev_action" value="clear_blacklist">
-        <button type="submit" style="width: 100%;">Clear Blacklist</button>
       </form>
     </div>
   </section>

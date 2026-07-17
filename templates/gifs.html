@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>GIF Gallery</h1>
+<p><small><a href="/data">← back to data</a></small></p>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
+  {% for gif in gifs %}
+  <div style="border: 1px solid #444; padding: 8px; background: #0a0a0a;">
+    <img src="/data/gifs/{{ gif }}" alt="{{ gif }}" style="width: 100%; height: auto; max-height: 250px; object-fit: cover; display: block; margin-bottom: 8px;">
+    <a href="/data/gifs/{{ gif }}" style="word-break: break-all; font-size: 0.85em;">{{ gif }}</a>
+  </div>
+  {% else %}
+  <p>No GIFs found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

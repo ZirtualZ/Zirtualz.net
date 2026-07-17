@@ -1,0 +1,92 @@
+  <!DOCTYPE html>
+  <html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Marshal — contact</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="icon" href="/static/favicon.ico">
+    <style>
+      input[type="text"], input[type="email"], textarea {
+        background: #111; 
+        color: #ccc;
+        border: 1px solid #444;
+        padding: 4px;
+        font-family: monospace;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 4px;
+        margin-bottom: 12px;
+      }
+      input[type="submit"] {
+        background: #222;
+        color: #fff;
+        border: 1px solid #555;
+        padding: 4px 12px;
+        font-family: monospace;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background: #333;
+      }
+      .honeypot {
+        position: absolute;
+        left: -100px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav> 
+      <a href="/">home</a> | <a href="/vault">vault</a> | <a href="/contact">contact</a>
+    </nav>
+    <p><b>marshal's contact desk</b></p>
+    <p><small>reach out, send questions, or report server bugs</small></p>
+    <hr>
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr valign="top">
+        <td class="main-col">
+          <p><b>drop a line</b></p>
+          <p>since the old public questions page got abused, you can use this form to send an message straight to my server backend instead.</p>
+          
+          <form action="/contact" method="POST">
+            <div class="honeypot" aria-hidden="true">
+              <label for="website">Website</label>
+              <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <label for="name"><small>name / alias:</small></label><br>
+            <input type="text" id="name" name="name" required placeholder="anonymous"><br>
+
+            <label for="email"><small>return email (optional):</small></label><br>
+            <input type="email" id="email" name="email" placeholder="so i can reply back :3"><br>
+            <label for="message"><small>message:</small></label><br>
+            <textarea id="message" name="message" rows="8" required placeholder="type something interesting..."></textarea><br>
+            <input type="submit" value="[ transmit ]">
+          </form>
+        </td>
+
+        <td class="side-col">
+          <p><small>direct contacts</small></p>
+          <div class="srow"><span>discord</span> @zirtualz</div>
+          <div class="srow"><span>email</span> zane@marshal-tech.xyz</div>
+          
+          <p class="section-gap"><small>response times</small></p>
+          <p><small>Uh dont expect a SUPER speedy response bc its just a .txt file on my server so :P.</small></p>
+          
+        </td>
+      </tr>
+    </table>
+
+    <hr>
+    <small>
+      <a href="/">home</a> | <a href="/vault">vault</a> | <a href="/contact">contact</a>
+    </small>
+  </body>
+
+  </html>
