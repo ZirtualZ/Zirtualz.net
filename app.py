@@ -28,6 +28,17 @@ except ImportError:
     pass
 
 
+@app.route("/vault")
+def vault():
+    return render_template("vault.html")
+
+@app.route("/vault/<version>")
+def vault_version(version):
+    try:
+        return render_template(f"archive/{version}.html")
+    except:
+        abort(404)
+
 @app.context_processor
 def inject_pages():
     return {"pages": PAGES}

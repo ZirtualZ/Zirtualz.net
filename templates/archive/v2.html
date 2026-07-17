@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Me</title>
+  <style>
+    body {
+      background: #f6f9fb;
+      color: #2c2c2c;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #aec6cf;
+      color: #1a1a1a;
+      padding: 24px 16px;
+      text-align: center;
+      animation: fadeInDown 1s ease;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    header p {
+      font-size: 1.1em;
+      margin-top: 6px;
+    }
+
+    main {
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .card {
+      background: #dbeff2;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(174, 198, 207, 0.3);
+      animation: slideInUp 0.8s ease;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.5em;
+      color: #222;
+    }
+
+    .card p {
+      font-size: 1.05em;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:nth-child(1) { animation-delay: 0.2s; }
+    .card:nth-child(2) { animation-delay: 0.4s; }
+    .card:nth-child(3) { animation-delay: 0.6s; }
+
+    .card {
+      animation-fill-mode: both;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hi, I'm Zane!</h1>
+    <p>Welcome to my little corner of the web</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>About Me</h2>
+      <p>
+        I'm 14 years old and into tech, coding, and gaming. I mess with stuff like Roblox, old laptops, and Termux. I like learning new things and figuring out how stuff works. :3
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Hobbies</h2>
+      <p>
+        I love gaming (especially on PS4), modding things, and trying out random tech projects. I’m also learning web dev and scripting.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Contact</h2>
+      <p>
+        Email: <i>oggaboogab35@gmail.com</i><br>
+        Discord: </i>_femz_</i>
+      </p>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About Me</title>
+<style>
+  body { background: linear-gradient(180deg,#c9c3f5,#b8d0f7); color:#2e2e3a; font-family:'Segoe UI',sans-serif; margin:0; padding:0; }
+  header { background:#b5bdf3; color:#2e2e3a; padding:26px 16px; text-align:center; animation:fadeInDown 1s ease; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+  header h1 { margin:0; font-size:2em; font-weight:500; }
+  header p { font-size:1em; margin-top:8px; opacity:0.85; }
+  main { padding:24px; max-width:720px; margin:auto; }
+  .card { background:#f3f2fd; padding:22px; margin-top:22px; border-radius:14px; box-shadow:0 4px 10px rgba(0,0,0,0.12); animation:slideInUp 0.8s ease; }
+  .card h2 { color:#2f2f4a; font-weight:500; margin-top:0; }
+  .card p { color:#444466; font-size:1em; line-height:1.6; }
+  .comment-box { background:#f3f2fd; margin-top:32px; padding:22px; border-radius:14px; box-shadow:0 4px 10px rgba(0,0,0,0.12); }
+  .comment-box h3 { color:#2f2f4a; margin-bottom:12px; font-weight:500; }
+  .comment-box textarea, .comment-box input { width:100%; padding:10px; border-radius:8px; border:1px solid #c4c4e6; margin-bottom:12px; resize:none; font-family:inherit; }
+  .comment-box button { background:#b5bdf3; color:#2e2e3a; border:none; padding:10px 18px; border-radius:10px; cursor:pointer; transition:0.3s; }
+  .comment-box button:hover { background:#a4acec; }
+  #chatStatus, #aiResponse { margin-top:8px; font-size:0.9em; color:#444; }
+  audio { display:none; }
+  .audio-toggle { position:fixed; bottom:14px; right:14px; background:#f3f2fd; border:none; color:#4a4a6a; font-size:20px; padding:10px 14px; border-radius:50%; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.25); z-index:1000; transition: background 0.3s, transform 0.2s; }
+  .audio-toggle:hover { background:#e6e5fb; transform:scale(1.1); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Hi, I'm Marshal</h1>
+  <p>Welcome to the home page.</p>
+</header>
+
+<main>
+  <!-- about Me -->
+  <div class="card"><h2>About Me</h2><p>I’m really into tech, coding, and gaming. I enjoy tinkering with old laptops, running different Linux setups, and experimenting with software just for fun. Learning new things and understanding how stuff works is something I actualllyyy enjoy.</p></div>
+  <!-- personal -->
+  <div class="card"><h2>Personal</h2><p>Hello, I’m Marshal! I go by She/Her pronouns and I'm always open to meeting new people and making friends. I’m currently in the CST time zone and enjoy connecting with others when I can!</p></div>
+  <!-- pobbies -->
+  <div class="card"><h2>Hobbies</h2><p>I love gaming, modding things, and trying out random tech projects. I’m also learning backend dev and Python.</p></div>
+  <!-- projects -->
+  <div class="card"><h2>My Code & Projects</h2><p><a href="projects.html" style="color:#ccc;text-decoration:none;">Visit My Projects Page</a></p></div>
+  <!-- Twitch-->
+  <div class="card"><h2>My Twitch Channel</h2>
+    <iframe src="https://player.twitch.tv/?channel=zirtualz&parent=zirtualz.netlify.app&muted=true" height="480" width="100%" allowfullscreen></iframe>
+  </div>
+
+
+<audio id="bgMusic" autoplay loop>
+  <source src="https://files.catbox.moe/16pitf.mp3" type="audio/mpeg" />
+</audio>
+<button class="audio-toggle" onclick="toggleAudio(this)" title="Toggle Music">🎵</button>
+
+<script>
+  // AUDIO TOGGLE
+  const audio = document.getElementById("bgMusic");
+  function toggleAudio(button){
+    if(audio.paused){ audio.play(); button.textContent="🎵"; }
+    else{ audio.pause(); button.textContent="🔇"; }
+  }
+
+
+</body>
+</html>

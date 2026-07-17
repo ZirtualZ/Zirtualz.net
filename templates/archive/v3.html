@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Me</title>
+  <style>
+    body {
+      background: #1e1e24;
+      color: #cfcfcf;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #2a2a33;
+      color: #dadada;
+      padding: 24px 16px;
+      text-align: center;
+      animation: fadeInDown 1s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+      font-weight: 400;
+    }
+
+    header p {
+      font-size: 1em;
+      margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    main {
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .card {
+      background: #2f2f39;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: slideInUp 0.8s ease;
+    }
+
+    .card h2 {
+      color: #d8d8d8;
+      font-weight: 400;
+    }
+
+    .card p {
+      color: #b3b3b3;
+      font-size: 1em;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeInDown {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:nth-child(1) { animation-delay: 0.2s; }
+    .card:nth-child(2) { animation-delay: 0.4s; }
+    .card:nth-child(3) { animation-delay: 0.6s; }
+
+    .card {
+      animation-fill-mode: both;
+    }
+
+    audio {
+      display: none;
+    }
+
+    .audio-toggle {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      background: #2f2f39;
+      border: none;
+      color: #ccc;
+      font-size: 20px;
+      padding: 8px 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .audio-toggle:hover {
+      background: #3a3a46;
+      transform: scale(1.1);
+    }
+
+    .comment-box {
+      background: #2f2f39;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .comment-box h3 {
+      color: #d8d8d8;
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+
+    .comment-box input,
+    .comment-box textarea {
+      width: 100%;
+      background: #1e1e24;
+      border: 1px solid #444;
+      color: #ccc;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      resize: none;
+      font-family: inherit;
+    }
+
+    .comment-box button {
+      background: #444;
+      color: #ccc;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .comment-box button:hover {
+      background: #5a5a5a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Hi, I'm Zane</h1>
+    <p>Welcome to my quiet little page.</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>About Me</h2>
+      <p>
+        I'm 14 years old and into tech, coding, and gaming. I mess with stuff like Roblox, old laptops, and Termux. I like learning new things and figuring out how stuff works. 😎
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Personal</h2>
+      <p>
+        I'm gay and currently single. I live in Arkansas (CST timezone), and I’m always open to making new friends or just vibing with chill people.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>🎮 Hobbies</h2>
+      <p>
+        I love gaming (especially on PS4), modding things, and trying out random tech projects. I’m also learning web dev and scripting.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Contact</h2>
+      <p>
+        Email: <i>oggaboogab35@gmail.com</i><br>
+        Discord: <i>_femz_</i>
+      </p>
+    </div>
+
+<div class="comment-box">
+  <h3>Leave a Comment</h3>
+  <p style="margin-bottom:10px;">Want to say something? Click below to send a message anonymously:</p>
+  <a href="https://forms.gle/pCKd2HCZ1ir3FRRF7" target="_blank" style="display:inline-block; background:#444; color:#ccc; padding:10px 16px; border-radius:8px; text-decoration:none;">
+    Open Comment Form
+  </a>
+  <p style="font-size: 0.8em; opacity: 0.5; margin-top: 6px;">
+    (It will open in a new tab.)
+  </p>
+</div>
+
+  <audio id="bgMusic" autoplay loop>
+    <source src="https://files.catbox.moe/16pitf.mp3" type="audio/mpeg" />
+  </audio>
+
+  <button class="audio-toggle" onclick="toggleAudio(this)" title="Toggle Music">🎵</button>
+
+  <script>
+    const audio = document.getElementById('bgMusic');
+    const btn = document.querySelector('.audio-toggle');
+
+    function toggleAudio(button) {
+      if (audio.paused) {
+        audio.play();
+        button.textContent = '🎵';
+      } else {
+        audio.pause();
+        button.textContent = '🔇';
+      }
+    }
+  </script>
+</body>
+</html>
