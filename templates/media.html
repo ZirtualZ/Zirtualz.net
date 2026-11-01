@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Media library</h1>
+<p><small><a href="/data">&larr; back to data</a></small></p>
+
+<style>
+  .media-tools {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #555;
+  }
+  .media-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .media-filters button {
+    padding: 8px 12px;
+    border: 1px solid #666;
+    border-radius: 2px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .media-filters button[aria-pressed="true"] {
+    background: #e7b448;
+    border-color: #e7b448;
+    color: #171717;
+  }
+  .media-filters button:focus-visible,
+  .media-search input:focus-visible {
+    outline: 2px solid #72c7bd;
+    outline-offset: 2px;
+  }
+  .media-search {
+    display: grid;
+    gap: 4px;
+    min-width: min(100%, 260px);
+  }
+  .media-search input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid #666;
+    border-radius: 2px;
+    background: #111;
+    color: inherit;
+  }
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .media-card {
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #444;
+    background: #0a0a0a;
+  }
+  .media-card img,
+  .media-card video {
+    display: block;
+    width: 100%;
+    max-height: 250px;
+    margin-bottom: 8px;
+    object-fit: contain;
+  }
+  .media-card-name {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 0.9em;
+  }
+  .media-kind {
+    display: block;
+    margin-bottom: 4px;
+    color: #72c7bd;
+    font-size: 0.75em;
+    text-transform: uppercase;
+  }
+  .media-status {
+    min-height: 1.5em;
+    margin: 12px 0 0;
+  }
+  [hidden] {
+    display: none !important;
+  }
+</style>
+
+<div class="media-tools">
+  <div class="media-filters" role="group" aria-label="Filter media by type">
+    <button type="button" data-media-filter="all" aria-pressed="true">All <span data-filter-count="all">0</span></button>
+    <button type="button" data-media-filter="gif" aria-pressed="false">GIFs <span data-filter-count="gif">0</span></button>
+    <button type="button" data-media-filter="video" aria-pressed="false">Videos <span data-filter-count="video">0</span></button>
+    <button type="button" data-media-filter="text" aria-pressed="false">Text <span data-filter-count="text">0</span></button>
+  </div>
+  <label class="media-search">
+    <span>Search filenames</span>
+    <input id="media-search" type="search" autocomplete="off" placeholder="Search media">
+  </label>
+</div>
+<p class="media-status" id="media-status" role="status" aria-live="polite"></p>
+
+{% if media_files %}
+<div class="media-grid" id="media-grid">
+  {% for media_file in media_files %}
+  {% set media_url = "/data/media/" ~ media_file %}
+  {% set extension = media_file.rsplit('.', 1)[-1].lower() %}
+  {% set media_kind = 'gif' if extension == 'gif' else 'video' if extension in ['mp4', 'avi'] else 'text' %}
+  {% set kind_label = 'GIF' if media_kind == 'gif' else 'Video' if media_kind == 'video' else 'Text' %}
+  <article class="media-card" data-media-item data-kind="{{ media_kind }}" data-name="{{ media_file|lower }}">
+    {% if media_file.lower().endswith('.gif') %}
+    <img src="{{ media_url }}" alt="{{ media_file }}">
+    {% elif media_file.lower().endswith('.mp4') or media_file.lower().endswith('.avi') %}
+    <video src="{{ media_url }}" controls preload="metadata"></video>
+    {% endif %}
+    <span class="media-kind">{{ kind_label }}</span>
+    <a class="media-card-name" href="{{ media_url }}">{{ media_file }}</a>
+  </article>
+  {% endfor %}
+</div>
+<p class="media-status" id="media-empty" hidden>No files match those filters.</p>
+{% else %}
+<p>No media files found.</p>
+{% endif %}
+
+<script>
+  const mediaItems = [...document.querySelectorAll("[data-media-item]")];
+  const filterButtons = [...document.querySelectorAll("[data-media-filter]")];
+  const searchInput = document.querySelector("#media-search");
+  const status = document.querySelector("#media-status");
+  const emptyState = document.querySelector("#media-empty");
+  let activeFilter = "all";
+
+  function updateMedia() {
+    const query = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    for (const item of mediaItems) {
+      const matchesFilter = activeFilter === "all" || item.dataset.kind === activeFilter;
+      const matchesSearch = item.dataset.name.includes(query);
+      item.hidden = !matchesFilter || !matchesSearch;
+      if (!item.hidden) visibleCount += 1;
+    }
+
+    for (const button of filterButtons) {
+      const filter = button.dataset.mediaFilter;
+      const count = filter === "all"
+        ? mediaItems.length
+        : mediaItems.filter(item => item.dataset.kind === filter).length;
+      button.querySelector("[data-filter-count]").textContent = count;
+      button.setAttribute("aria-pressed", String(filter === activeFilter));
+    }
+
+    status.textContent = `Showing ${visibleCount} of ${mediaItems.length} files`;
+    emptyState.hidden = visibleCount !== 0;
+  }
+
+  for (const button of filterButtons) {
+    button.addEventListener("click", () => {
+      activeFilter = button.dataset.mediaFilter;
+      updateMedia();
+    });
+  }
+  searchInput.addEventListener("input", updateMedia);
+  updateMedia();
+</script>
+{% endblock %}

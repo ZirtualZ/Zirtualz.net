@@ -8,26 +8,24 @@
   <link rel="stylesheet" href="/static/css/index.css">
   <link rel="icon" href="/static/favicon.ico">
 </head>
-<!-- You can go to /data to view everything my website ever uses :P-->
 <body>
-  <nav> <a href="/">home</a> | <a href="/vault">vault</a> | <a href="/contact">contact</a> | <a href="/irc">irc</a> </nav>
+  <nav> <a href="/">home</a> | <a href="/vault">vault</a> | <a href="/contact">contact</a> | </nav>
   <p><b>marshal's page</b> — he/she/they</p>
   <p><small>linux, servers, python, self-hosting, retro stuff</small></p>
-  <p><a href="/minecraft">Join my Minecraft server!</a></p>
-  <p><a href="/irc">Join my IRC server! (very WIP)</a></p>
+  <p><a href="http://ai.zirtualz.net"></a>Want a FREE openai/proxy api? try ai.zirtualz.net using the key sk--public !!</a></p>
   <hr>
   <table width="100%" cellpadding="0" cellspacing="0">
     <tr valign="top">
       <td class="main-col">
         <p><b>about</b></p>
-        <p>hello!!! i'm zane. i spend a lot of my time online, messing with things and figuring stuff out as i go.
+        <p>hello!!! i'm marshal OR Zane. I spend a lot of my time online, messing with things and figuring stuff out as i go.
            i like exploring, learning, and making things feel like mine, even if i don't always know what i'm doing at first
             - a lot of what i do comes from curiosity more than anything else.</p>
         <p>i like having my own space where i can just be myself without worrying about fitting into groups.
            i'm genderfluid and pansexual, sitting somewhere in between everything. still figuring shit out lmao, and i'm fine with that.</p>
         <p class="section-gap"><b>notes</b></p>
-        <p> site is hand written and self hosted :P<br> old netlify versions are in <a
-            href="/vault">vault</a><br> questions page got abused so its gone<br> labs will show up here eventually </p>
+        <p>Website is hosted by me<br> old website versions are in <a
+            href="/vault">vault</a> </p>
   <img id="rand-img" src="" alt="" style="width: 550px; height: 550px; object-fit: contain; display: block;">
         <script>
           fetch('/data/images/random')
@@ -45,23 +43,19 @@
         <div class="srow"><span>os</span> Arch / ZEN</div>
         <div class="srow"><span>hdd</span> 3.5TB</div>
         <p class="section-gap"><small>server</small></p>
-        <div class="srow"><span>cpu</span> Intel i7-6700K</div>
-        <div class="srow"><span>ram</span> 16GB DDR4</div>
-        <div class="srow"><span>hdd</span> 1.3TB</div>
-        <div class="srow"><span>os</span> Ubuntu Server</div>
-        <div class="srow"><span>runs</span> pihole/tailscale/flask/Minecraft Server</div>
-        <p class="section-gap"><small>laptop</small></p>
-        <div class="srow"><span>model</span> Acer TravelMate</div>
-        <div class="srow"><span>cpu</span> i5-8250U</div>
-        <div class="srow"><span>ram</span> 12GB DDR4</div>
-        <div class="srow"><span>storage</span> 128GB M.2</div>
-        <div class="srow"><span>os</span> Windows 10 LTSC</div>
-        <p class="section-gap"><small>links</small></p>
+        <div class="srow"><span>cpu</span> Intel i3-10100</div>
+        <div class="srow"><span>ram</span> 24GB DDR4</div>
+        <div class="srow"><span>hdd</span> 3.5TB</div>
+        <div class="srow"><span>os</span> Arch linux/LTS</div>
+        <div class="srow"><span>gpu</span> Tesla P100(2nd coming soon..)</div>
+        <div class="srow"><span>runs</span> Website, VMs, wireguard, Local ai</div>
+        <div class="srow"><span>uptime</span> <span id="system-uptime">loading...</span></div>
+        <p class="section-gap"><small>My links</small></p>
         <p>
           <a href="https://github.com/ZirtualZ">github</a><br>
           <a href="https://discord.gg/nTdZ9jGjPF">discord</a><br>
           <a href="https://steamcommunity.com/id/ZirtualZ/">steam</a><br>
-          <a href="/data">data for the Website</a><br>
+          <a href="/data">Music, Images, Media</a><br>
         </p>
 
 
@@ -70,9 +64,9 @@
         <p><small id="song-name">loading...</small></p>
 
         <small>
-          <a href="#" onclick="player.muted=false; nextSong(); return false;">[ play ]</a>
-          <a href="#" onclick="player.paused ? player.play() : player.pause(); return false;">[ pause ]</a>
-          <a href="#" onclick="nextSong(); return false;">[ skip ]</a>
+          <a href="#" onclick="player.muted=false; nextSong(); return false;"> play </a>
+          <a href="#" onclick="player.paused ? player.play() : player.pause(); return false;"> pause </a>
+          <a href="#" onclick="nextSong(); return false;"> skip </a>
         </small>
       </td>
     </tr>
@@ -109,6 +103,43 @@
         player.play();
       }
     }, { once: true });
+  </script>
+
+  <script>
+    const uptimeLabel = document.getElementById("system-uptime");
+    let uptimeSeconds;
+    let uptimeUpdatedAt;
+
+    function formatUptime(seconds) {
+      const days = Math.floor(seconds / 86400);
+      const hours = Math.floor((seconds % 86400) / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+
+      return `${days}d ${hours}h ${minutes}m ${remainingSeconds}s`;
+    }
+
+    function updateUptimeLabel() {
+      if (uptimeSeconds === undefined) return;
+      const elapsed = (Date.now() - uptimeUpdatedAt) / 1000;
+      uptimeLabel.textContent = formatUptime(uptimeSeconds + elapsed);
+    }
+
+    async function loadUptime() {
+      try {
+        const response = await fetch("/api/uptime");
+        if (!response.ok) throw new Error("Uptime unavailable");
+        const data = await response.json();
+        uptimeSeconds = data.seconds;
+        uptimeUpdatedAt = Date.now();
+        updateUptimeLabel();
+      } catch (error) {
+        uptimeLabel.textContent = "unavailable";
+      }
+    }
+
+    loadUptime();
+    setInterval(updateUptimeLabel, 1000);
   </script>
 
 </body>

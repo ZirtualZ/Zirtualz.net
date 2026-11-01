@@ -1,6 +1,10 @@
 import io
+import hashlib
+import hmac
+import json
 import os
 import gzip
+import threading
 import time
 import random
 
@@ -26,7 +30,7 @@ PAGES = [
 
 # Globally recognized image formats
 IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
-MISC_EXTENSIONS = (".gif", ".txt", ".mp4", ".avi")
+MEDIA_EXTENSIONS = (".gif", ".txt", ".mp4", ".avi")
 
 # Register admin routes (gitignored)
 try:
@@ -55,6 +59,81 @@ def _list_media_files(directory, extensions):
 def get_request_ip():
     forwarded = request.headers.get("X-Forwarded-For", "")
     return forwarded.split(",")[0].strip() if forwarded else request.remote_addr or "unknown"
+
+
+PAGE_VISITS_FILE = os.path.join(DATA_DIR, "page_visits.txt")
+PAGE_VISIT_IPS_FILE = os.path.join(DATA_DIR, "page_visit_ips.json")
+PAGE_VISIT_HASH_KEY = os.environ.get("PAGE_VISIT_HASH_KEY", "marshal-tech-page-visits").encode()
+SUSPICIOUS_PATHS = {"/env", "/env/", "/.env", "/.env/"}
+page_visits_lock = threading.Lock()
+
+
+def _visitor_fingerprint(ip):
+    return hmac.new(PAGE_VISIT_HASH_KEY, ip.encode(), hashlib.sha256).hexdigest()
+
+
+def _record_page_visit():
+    if request.method not in ("GET", "HEAD") or request.endpoint is None:
+        return
+    if request.path.startswith("/data/"):
+        return
+
+    try:
+        with page_visits_lock:
+            try:
+                with open(PAGE_VISIT_IPS_FILE, "r", encoding="utf-8") as visits_file:
+                    visits = json.load(visits_file)
+            except (FileNotFoundError, json.JSONDecodeError):
+                visits = {}
+
+            for path in list(visits):
+                if path.startswith("/data/ /music/"):
+                    del visits[path]
+                    continue
+                stats = visits[path]
+                if path in SUSPICIOUS_PATHS:
+                    stats["ips"] = stats.get("ips", [])
+                else:
+                    stats["visitors"] = stats.get(
+                        "visitors",
+                        [_visitor_fingerprint(ip) for ip in stats.pop("ips", [])],
+                    )
+
+            is_suspicious = request.path in SUSPICIOUS_PATHS
+            default_stats = {"total": 0, "ips": []} if is_suspicious else {"total": 0, "visitors": []}
+            page = visits.setdefault(request.path, default_stats)
+            page["total"] += 1
+            ip = get_request_ip()
+            if is_suspicious:
+                if ip not in page["ips"]:
+                    page["ips"].append(ip)
+            else:
+                fingerprint = _visitor_fingerprint(ip)
+                if fingerprint not in page["visitors"]:
+                    page["visitors"].append(fingerprint)
+
+            temp_file = f"{PAGE_VISIT_IPS_FILE}.tmp"
+            with open(temp_file, "w", encoding="utf-8") as visits_file:
+                json.dump(visits, visits_file, indent=2)
+            os.replace(temp_file, PAGE_VISIT_IPS_FILE)
+
+            with open(PAGE_VISITS_FILE, "w", encoding="utf-8") as summary_file:
+                for path, stats in sorted(visits.items()):
+                    unique_count = len(stats.get("ips", stats.get("visitors", [])))
+                    summary_file.write(
+                        f"{path} - {stats['total']} (unique: {unique_count})\n"
+                    )
+    except OSError:
+        app.logger.exception("Unable to record page visit")
+
+
+@app.after_request
+def record_page_visit(response):
+    if response.mimetype == "text/html" and (
+        response.status_code < 400 or request.path in SUSPICIOUS_PATHS
+    ):
+        _record_page_visit()
+    return response
 
 def is_admin_ip(ip):
     return ip in ("127.0.0.1", "::1") or ip.startswith("192.168.40.")
@@ -124,23 +203,24 @@ def list_images():
     images = _list_media_files(img_dir, IMAGE_EXTENSIONS)
     return render_template("image_list.html", images=images)
 
+@app.route("/data/media", strict_slashes=False)
 @app.route("/data/misc", strict_slashes=False)
-def list_gifs():
-    gif_dir = os.path.join(DATA_DIR, "gifs")
-    gifs = _list_media_files(gif_dir, MISC_EXTENSIONS)
-    return render_template("gifs.html", gifs=gifs)
+def list_media():
+    media_dir = os.path.join(DATA_DIR, "media")
+    media_files = _list_media_files(media_dir, MEDIA_EXTENSIONS)
+    return render_template("media.html", media_files=media_files)
 
 @app.route("/data", strict_slashes=False)
 def data_index():
     img_dir = os.path.join(DATA_DIR, "images")
-    gif_dir = os.path.join(DATA_DIR, "gifs")
+    media_dir = os.path.join(DATA_DIR, "media")
     music_dir = os.path.join(DATA_DIR, "music")
 
     images = _list_media_files(img_dir, IMAGE_EXTENSIONS)
-    gifs = _list_media_files(gif_dir, MISC_EXTENSIONS)
+    media_files = _list_media_files(media_dir, MEDIA_EXTENSIONS)
     songs = _list_media_files(music_dir, (".mp3",))
 
-    return render_template("data.html", images=images, gifs=gifs, songs=songs)
+    return render_template("data.html", images=images, media_files=media_files, songs=songs)
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -176,6 +256,20 @@ def temp_file(upload_id):
 @app.route("/minecraft")
 def minecraft():
     return render_template("minecraft.html")
+
+@app.route("/api/uptime")
+def system_uptime():
+    try:
+        if os.name == "nt":
+            import ctypes
+            uptime_seconds = ctypes.windll.kernel32.GetTickCount64() / 1000
+        else:
+            with open("/proc/uptime", "r", encoding="ascii") as uptime_file:
+                uptime_seconds = float(uptime_file.read().split()[0])
+    except (AttributeError, FileNotFoundError, ValueError, IndexError):
+        return jsonify({"error": "System uptime is unavailable."}), 503
+
+    return jsonify({"seconds": uptime_seconds})
 
 @app.route("/irc")
 def irc():
@@ -216,10 +310,11 @@ def serve_image(filename):
     return send_from_directory(img_dir, filename)
 
 
+@app.route("/data/media/<filename>")
 @app.route("/data/gifs/<filename>")
-def serve_gif(filename):
-    gif_dir = os.path.join(DATA_DIR, "gifs")
-    return send_from_directory(gif_dir, filename)
+def serve_media(filename):
+    media_dir = os.path.join(DATA_DIR, "media")
+    return send_from_directory(media_dir, filename)
 
 
 @app.route("/music/random")

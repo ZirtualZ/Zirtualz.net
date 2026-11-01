@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Data Directory</h1>
+<h1>Data for zirtualz.net</h1>
 
 <div style="margin-bottom: 32px;">
   <h2>Images ({{ images|length }})</h2>
@@ -14,16 +14,16 @@
 </div>
 
 <div style="margin-bottom: 32px;">
-  <h2>GIFs ({{ gifs|length }})</h2>
-  {% if gifs %}
-  <p><a href="/data/gifs"><strong>[ Browse MISC Gallery ]</strong></a></p>
-  <ul id="gif-list" style="height: 250px; overflow-y: auto; border: 1px solid #444; padding: 8px; list-style: none; margin: 0;">
-    {% for gif in gifs %}
-    <li><a href="/data/gifs/{{ gif }}">{{ gif }}</a></li>
+  <h2>Media ({{ media_files|length }})</h2>
+  {% if media_files %}
+  <p><a href="/data/media"><strong>Browse media</strong></a></p>
+  <ul id="media-list" style="height: 250px; overflow-y: auto; border: 1px solid #444; padding: 8px; list-style: none; margin: 0;">
+    {% for media_file in media_files %}
+    <li><a href="/data/media/{{ media_file }}">{{ media_file }}</a></li>
     {% endfor %}
   </ul>
   {% else %}
-  <p><em>No GIFs.</em></p>
+  <p><em>No media files.</em></p>
   {% endif %}
 </div>
 
